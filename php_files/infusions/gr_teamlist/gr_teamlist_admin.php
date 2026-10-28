@@ -8,6 +8,7 @@
 | Filename: gr_teamlist_admin.php
 | Author: Ralf Thieme (Gr@n@dE)
 | HP: www.granade.eu
+| Modified: Alexander Schilinski, 2026 (Fork)
 +--------------------------------------------------------+
 | This program is released as free software under the
 | Affero GPL license. You can redistribute it and/or
