@@ -20,6 +20,10 @@
 +--------------------------------------------------------*/
 if (!defined("IN_FUSION")) { die("Access Denied"); }
 
+// Zentrale Versionsnummer, wird von infusion.php und dem Footer der Teamliste genutzt
+if (!defined("GRTL_VERSION")) {
+	define("GRTL_VERSION", "2.3.0");
+}
 if (!defined("DB_GR_TEAMLIST_GROUP")) {
 	define("DB_GR_TEAMLIST_GROUP", DB_PREFIX."gr_teamlist_groups");
 }

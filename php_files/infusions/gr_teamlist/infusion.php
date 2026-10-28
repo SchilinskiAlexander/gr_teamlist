@@ -29,7 +29,7 @@ if (file_exists(INFUSIONS."gr_teamlist/locale/".LOCALESET."index.php")) {
 
 $inf_title = $locale['grtl100'];
 $inf_description = $locale['grtl101'];
-$inf_version = "2.2";
+$inf_version = GRTL_VERSION;
 $inf_developer = "Ralf Thieme";
 $inf_email = "scripte@granade.eu";
 $inf_weburl = "http://www.granade.eu";
