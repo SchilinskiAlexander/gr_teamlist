@@ -11,4 +11,4 @@ Erste Version des Forks, basiert auf Gr_Teamlist v2.2 von Ralf Thieme.
 - Behoben: Beim Löschen eines Mitglieds wurden die Positionen in allen Gruppen verschoben statt nur in der eigenen
 - Behoben: E-Mail-Link wurde zufällig als Text angezeigt, wenn die Adresse ein „x“ enthält
 - Installation funktioniert auf aktuellem MySQL und MariaDB
-- Footer zeigt die Version und verlinkt auf die Downloads
+- Footer auf der Teamliste und im Admin-Bereich zeigt die Version und verlinkt auf die Downloads
