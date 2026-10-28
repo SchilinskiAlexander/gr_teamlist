@@ -393,7 +393,7 @@ if (IsSeT($_GET['groups_del']) && isnum(grtl_get("id"))) {
 		echo "<div align='center'><br />".$locale['grtl209']."<br /></div>";
 	}
 }
-echo "<br />\n<div align='right'><a href='http://www.granade.eu/scripte/teamlist.html' target='_blank'>&copy;</a></div>";
+echo "<br />\n<div align='right'><a href='http://www.granade.eu/scripte/teamlist.html' target='_blank'>&copy;</a> | <a href='https://github.com/SchilinskiAlexander/gr_teamlist/releases' target='_blank' rel='noopener'>Fork v".GRTL_VERSION."</a></div>";
 closetable();
 
 echo '<script type="text/javascript">
