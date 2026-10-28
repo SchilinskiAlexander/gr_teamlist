@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version prüfen
+        run: |
+          VERSION=$(grep -o 'define("GRTL_VERSION", "[^"]*")' php_files/infusions/gr_teamlist/infusion_db.php | cut -d'"' -f4)
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME passt nicht zu GRTL_VERSION $VERSION in infusion_db.php"
+            exit 1
+          fi
+
+      - name: ZIP bauen
+        run: |
+          NAME="gr_teamlist_${GITHUB_REF_NAME}"
+          mkdir -p "dist/$NAME"
+          cp -r php_files readme.txt README.md CHANGELOG.md LICENSE "dist/$NAME/"
+          find "dist/$NAME" -name Thumbs.db -delete
+          cd dist && zip -r -X "$NAME.zip" "$NAME"
+
+      - name: Release-Text erstellen
+        run: |
+          awk -v ver="## ${GITHUB_REF_NAME}" '$0 == ver {f=1; next} /^## / {f=0} f' CHANGELOG.md > notes.md
+          cat >> notes.md <<EOF
+
+          ## Download und Installation
+
+          1. **gr_teamlist_${GITHUB_REF_NAME}.zip** unten bei „Assets“ herunterladen (nicht „Source code“).
+          2. ZIP entpacken und den Inhalt des Ordners \`php_files\` in das Hauptverzeichnis von PHP-Fusion hochladen.
+          3. Neuinstallation: Im Admin Panel unter „System Admin“ → „Infusionen“ die Teamlist installieren.
+             Update: Dateien einfach überschreiben, die Datenbank bleibt unverändert.
+          EOF
+
+      - name: Release veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "dist/gr_teamlist_${GITHUB_REF_NAME}.zip" \
+            --title "Teamlist Fork ${GITHUB_REF_NAME}" \
+            --notes-file notes.md

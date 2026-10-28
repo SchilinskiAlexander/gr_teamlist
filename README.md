@@ -16,6 +16,10 @@ Dies ist keine offizielle Version des Originalautors. Änderungen gegenüber v2.
 - PHP 5 bis 8.4
 - MySQL ab 4.1 oder MariaDB
 
+## Download
+
+Die aktuelle Version gibt es unter [Releases](https://github.com/SchilinskiAlexander/gr_teamlist/releases) als ZIP-Datei `gr_teamlist_vX.X.zip`. Die Änderungen je Version stehen in [`CHANGELOG.md`](CHANGELOG.md).
+
 ## Installation
 
 1. Den Inhalt von `php_files/` in das Hauptverzeichnis von PHP-Fusion hochladen.
