@@ -149,7 +149,7 @@ while ($tl_group = dbarray($result)) {
 } else {
 	echo "<div align='center'><br />".$locale['grtl209']."<br /><br /></div>";
 }
-echo "<div align='right'><a href='http://www.granade.eu/scripte/teamlist.html' target='_blank'>Teamlist &copy;</a></div>";
+echo "<div align='right'><a href='http://www.granade.eu/scripte/teamlist.html' target='_blank'>Teamlist &copy;</a> | <a href='https://github.com/SchilinskiAlexander/gr_teamlist' target='_blank' rel='noopener'>GitHub</a></div>";
 closetable();
 
 echo '<script type="text/javascript">
