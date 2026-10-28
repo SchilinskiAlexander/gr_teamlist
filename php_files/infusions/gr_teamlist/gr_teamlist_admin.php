@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | PHP-Fusion Content Management System
-| Copyright © 2002 - 2008 Nick Jones
+| Copyright Â© 2002 - 2008 Nick Jones
 | http://www.php-fusion.co.uk/
 +--------------------------------------------------------+
 | Title: Gr_Teamlist v2.2 for PHP-Fusion 7
@@ -22,8 +22,9 @@ require_once "../../maincore.php";
 require_once THEMES."templates/admin_header.php";
 
 include INFUSIONS."gr_teamlist/infusion_db.php";
-if (!checkrights("GRTL") || !defined("iAUTH") || $_GET['aid'] != iAUTH) { redirect("../../index.php"); }
-if (IsSeT($_GET['id']) && !isnum($_GET['id'])) { redirect("../../index.php"); }
+require_once INFUSIONS."gr_teamlist/gr_teamlist_functions.php";
+if (!checkrights("GRTL") || !defined("iAUTH") || grtl_get("aid") != iAUTH) { redirect("../../index.php"); }
+if (IsSeT($_GET['id']) && !isnum(grtl_get("id"))) { redirect("../../index.php"); }
 
 if (file_exists(INFUSIONS."gr_teamlist/locale/".LOCALESET."index.php")) {
 	include INFUSIONS."gr_teamlist/locale/".LOCALESET."index.php";
@@ -31,32 +32,34 @@ if (file_exists(INFUSIONS."gr_teamlist/locale/".LOCALESET."index.php")) {
 	include INFUSIONS."gr_teamlist/locale/German/index.php";
 }
 
-if (IsSeT($_GET['groups_del']) && isnum($_GET['id'])) {
-	$data = dbarray(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_id='".$_GET['id']."'"));
-	$result = dbquery("UPDATE ".DB_GR_TEAMLIST_GROUP." SET tlg_position=tlg_position-1 WHERE tlg_position>'".$data['tlg_position']."'");	
-	$result = dbquery("DELETE FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_id='".$_GET['id']."'");
-	$result = dbquery("DELETE FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_groups='".$_GET['id']."'");
+if (IsSeT($_GET['groups_del']) && isnum(grtl_get("id"))) {
+	$data = grtl_fetch(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_id='".$_GET['id']."'"));
+	if ($data) {
+		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_GROUP." SET tlg_position=tlg_position-1 WHERE tlg_position>'".$data['tlg_position']."'");
+		$result = dbquery("DELETE FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_id='".$_GET['id']."'");
+		$result = dbquery("DELETE FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_groups='".$_GET['id']."'");
+	}
 	redirect(FUSION_SELF.$aidlink);
-} elseif (IsSeT($_GET['groups_up']) && isnum($_GET['id']) && isnum($_GET['order'])) {
-	if ($_GET['order'] > 0) {
-		$data = dbarray(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_position='".$_GET['order']."'"));
+} elseif (IsSeT($_GET['groups_up']) && isnum(grtl_get("id")) && isnum(grtl_get("order"))) {
+	$data = grtl_fetch(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_position='".$_GET['order']."'"));
+	if ($_GET['order'] > 0 && $data) {
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_GROUP." SET tlg_position=tlg_position+1 WHERE tlg_id='".$data['tlg_id']."'");
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_GROUP." SET tlg_position=tlg_position-1 WHERE tlg_id='".$_GET['id']."'");
 	}
 	redirect(FUSION_SELF.$aidlink);
-} elseif (IsSeT($_GET['groups_down']) && isnum($_GET['id']) && isnum($_GET['order'])) {
+} elseif (IsSeT($_GET['groups_down']) && isnum(grtl_get("id")) && isnum(grtl_get("order"))) {
 	$link_order = dbresult(dbquery("SELECT MAX(tlg_position) FROM ".DB_GR_TEAMLIST_GROUP.""), 0) + 1;
-	if ($_GET['order'] < $link_order) {
-		$data = dbarray(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_position='".$_GET['order']."'"));
+	$data = grtl_fetch(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_position='".$_GET['order']."'"));
+	if ($_GET['order'] < $link_order && $data) {
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_GROUP." SET tlg_position=tlg_position-1 WHERE tlg_id='".$data['tlg_id']."'");
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_GROUP." SET tlg_position=tlg_position+1 WHERE tlg_id='".$_GET['id']."'");
 	}
-	redirect(FUSION_SELF.$aidlink."&page=".$_GET['page']);
-}	elseif (IsSeT($_GET['groups_edit']) && isnum($_GET['id'])) {
+	redirect(FUSION_SELF.$aidlink);
+}	elseif (IsSeT($_GET['groups_edit']) && isnum(grtl_get("id"))) {
 	if (IsSeT($_POST['save'])) {
-		$teil1 = stripinput($_POST['teil1']);
-		$teil2 = stripinput($_POST['teil2']);
-		if ($teil1 != "" && $teil2 != "" && isnum($_POST['teil3'])) {
+		$teil1 = stripinput(grtl_post("teil1"));
+		$teil2 = stripinput(grtl_post("teil2"));
+		if ($teil1 != "" && $teil2 != "" && isnum(grtl_post("teil3"))) {
 			$result = dbquery("UPDATE ".DB_GR_TEAMLIST_GROUP." SET tlg_name='".$teil1."', tlg_pic='".$teil2."', tlg_status='".$_POST['teil3']."' WHERE tlg_id='".$_GET['id']."'");
 			redirect(FUSION_SELF.$aidlink);
 		} else {
@@ -65,7 +68,8 @@ if (IsSeT($_GET['groups_del']) && isnum($_GET['id'])) {
 	} else {
 		opentable($locale['grtl241']);
 		$result = dbquery("SELECT * FROM ".DB_GR_TEAMLIST_GROUP." WHERE tlg_id='".$_GET['id']."'");
-		$tl_group = dbarray($result);
+		$tl_group = grtl_fetch($result);
+		if (!$tl_group) { redirect(FUSION_SELF.$aidlink); }
 		echo "<form action='".FUSION_SELF.$aidlink."&groups_edit&id=".$_GET['id']."' method='post'><table align='center' class='tbl-border' cellpadding='0' cellspacing='0'>
 			<tr>
 				<td class='tbl1'>".$locale['grtl238']." <span style='color:#ff0000'>*</span></td>
@@ -94,9 +98,9 @@ if (IsSeT($_GET['groups_del']) && isnum($_GET['id'])) {
 	}
 } elseif (IsSeT($_GET['groups_add'])) {
 	if (IsSeT($_POST['save'])) {
-		$teil1 = stripinput($_POST['teil1']);
-		$teil2 = stripinput($_POST['teil2']);
-		if ($teil1 != "" && $teil2 != "" && isnum($_POST['teil3'])) {
+		$teil1 = stripinput(grtl_post("teil1"));
+		$teil2 = stripinput(grtl_post("teil2"));
+		if ($teil1 != "" && $teil2 != "" && isnum(grtl_post("teil3"))) {
 			$link_order = dbresult(dbquery("SELECT MAX(tlg_position) FROM ".DB_GR_TEAMLIST_GROUP.""), 0) + 1;
 			$result = dbquery("INSERT INTO ".DB_GR_TEAMLIST_GROUP." (tlg_name, tlg_pic, tlg_position, tlg_status) VALUES('".$teil1."', '".$teil2."', '".$link_order."', '".$_POST['teil3']."')"); 
 			redirect(FUSION_SELF.$aidlink);
@@ -129,42 +133,46 @@ if (IsSeT($_GET['groups_del']) && isnum($_GET['id'])) {
 			</table></form>
 			<a href='".FUSION_SELF.$aidlink."'>".$locale['grtl234']."</a>";		
 	}
-} elseif (IsSeT($_GET['users_del']) && isnum($_GET['id'])) {
-	$data = dbarray(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_id='".$_GET['id']."'"));
-	$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position-1 WHERE tlu_position>'".$data['tlu_position']."'");	
-	$result = dbquery("DELETE FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_id='".$_GET['id']."'");
+} elseif (IsSeT($_GET['users_del']) && isnum(grtl_get("id"))) {
+	$data = grtl_fetch(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_id='".$_GET['id']."'"));
+	if ($data) {
+		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position-1 WHERE tlu_position>'".$data['tlu_position']."' AND tlu_groups='".$data['tlu_groups']."'");
+		$result = dbquery("DELETE FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_id='".$_GET['id']."'");
+	}
 	redirect(FUSION_SELF.$aidlink);
-} elseif (IsSeT($_GET['users_up']) && isnum($_GET['id']) && isnum($_GET['order']) && isnum($_GET['groups'])) {
-	if ($_GET['order'] > 0) {
-		$data = dbarray(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_position='".$_GET['order']."' AND tlu_groups='".$_GET['groups']."'"));
+} elseif (IsSeT($_GET['users_up']) && isnum(grtl_get("id")) && isnum(grtl_get("order")) && isnum(grtl_get("groups"))) {
+	$data = grtl_fetch(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_position='".$_GET['order']."' AND tlu_groups='".$_GET['groups']."'"));
+	if ($_GET['order'] > 0 && $data) {
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position+1 WHERE tlu_id='".$data['tlu_id']."'");
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position-1 WHERE tlu_id='".$_GET['id']."'");
 	}
 	redirect(FUSION_SELF.$aidlink);
-} elseif (IsSeT($_GET['users_down']) && isnum($_GET['id']) && isnum($_GET['order']) && isnum($_GET['groups'])) {
+} elseif (IsSeT($_GET['users_down']) && isnum(grtl_get("id")) && isnum(grtl_get("order")) && isnum(grtl_get("groups"))) {
 	$link_order = dbresult(dbquery("SELECT MAX(tlu_position) FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_groups='".$_GET['groups']."'"), 0) + 1;
-	if ($_GET['order'] < $link_order) {
-		$data = dbarray(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_position='".$_GET['order']."' AND tlu_groups='".$_GET['groups']."'"));
+	$data = grtl_fetch(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_position='".$_GET['order']."' AND tlu_groups='".$_GET['groups']."'"));
+	if ($_GET['order'] < $link_order && $data) {
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position-1 WHERE tlu_id='".$data['tlu_id']."'");
 		$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position+1 WHERE tlu_id='".$_GET['id']."'");
 	}
 	redirect(FUSION_SELF.$aidlink);
-}	elseif (IsSeT($_GET['users_edit']) && isnum($_GET['id'])) {
+}	elseif (IsSeT($_GET['users_edit']) && isnum(grtl_get("id"))) {
 	if (IsSeT($_POST['save'])) {
-		$teil1 = stripinput($_POST['teil1']);
-		$teil2 = stripinput($_POST['teil2']);
-		$teil3 = stripinput($_POST['teil3']);
-		$teil4 = stripinput($_POST['teil4']);
-		$bild = stripinput($_POST['bild']);
-		if ($teil1 != "" && $teil2 != "" && isnum($_POST['teil5']) && isnum($_POST['teil6']) && isnum($_GET['groups']) && isnum($_POST['id'])) {
+		$teil1 = stripinput(grtl_post("teil1"));
+		$teil2 = stripinput(grtl_post("teil2"));
+		$teil3 = stripinput(grtl_post("teil3"));
+		$teil4 = stripinput(grtl_post("teil4"));
+		$bild = stripinput(grtl_post("bild"));
+		if ($teil1 != "" && $teil2 != "" && isnum(grtl_post("teil5")) && isnum(grtl_post("teil6")) && isnum(grtl_get("groups")) && isnum(grtl_post("id"))) {
 			if ($bild != "" && file_exists(INFUSIONS."gr_teamlist/images/team/".$bild)) {
 				$bild_save = $bild;
 			} else {
 				$bild_save = "";
 			}
 			if ($_GET['groups'] != $_POST['teil6']) {
-				$data = dbarray(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_id='".$_POST['id']."'"));
-				$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position-1 WHERE tlu_position>'".$data['tlu_position']."' AND tlu_groups='".$_GET['groups']."'");	
+				$data = grtl_fetch(dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_id='".$_POST['id']."'"));
+				if ($data) {
+					$result = dbquery("UPDATE ".DB_GR_TEAMLIST_USERS." SET tlu_position=tlu_position-1 WHERE tlu_position>'".$data['tlu_position']."' AND tlu_groups='".$_GET['groups']."'");
+				}
 				$link_order = dbresult(dbquery("SELECT MAX(tlu_position) FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_groups='".$_POST['teil6']."'"), 0) + 1;
 				$order = ", tlu_position='".$link_order."'";
 			} else {
@@ -178,11 +186,12 @@ if (IsSeT($_GET['groups_del']) && isnum($_GET['id'])) {
 	} else {
 		opentable($locale['grtl235']);
 		$result = dbquery("SELECT * FROM ".DB_GR_TEAMLIST_USERS." WHERE tlu_id='".$_GET['id']."'");
-		$tl_users = dbarray($result);
+		$tl_users = grtl_fetch($result);
+		if (!$tl_users) { redirect(FUSION_SELF.$aidlink); }
 		if ($tl_users['tlu_userid'] > 0){
 			$result2 = dbquery("SELECT user_id, user_name FROM ".DB_USERS." WHERE user_id='".$tl_users['tlu_userid']."'");
-			$tl_users2 = dbarray($result2);
-			$user_name = $tl_users2['user_name'];
+			$tl_users2 = grtl_fetch($result2);
+			$user_name = grtl_value($tl_users2, "user_name", "Kein Profil");
 		} else {
 			$user_name = "Kein Profil";
 		}
@@ -240,12 +249,12 @@ if (IsSeT($_GET['groups_del']) && isnum($_GET['id'])) {
 	}
 } elseif (IsSeT($_GET['users_add'])) {
 	if (IsSeT($_POST['save'])) {
-		$teil2 = stripinput($_POST['teil2']);
-		$teil3 = stripinput($_POST['teil3']);
-		$teil4 = stripinput($_POST['teil4']);
-		$teil5 = stripinput($_POST['teil5']);
-		$bild = stripinput($_POST['bild']);
-		if (isnum($_POST['teil1']) && $teil2 != "" && $teil3 != "" && isnum($_POST['teil6']) && isnum($_POST['teil7'])) {
+		$teil2 = stripinput(grtl_post("teil2"));
+		$teil3 = stripinput(grtl_post("teil3"));
+		$teil4 = stripinput(grtl_post("teil4"));
+		$teil5 = stripinput(grtl_post("teil5"));
+		$bild = stripinput(grtl_post("bild"));
+		if (isnum(grtl_post("teil1")) && $teil2 != "" && $teil3 != "" && isnum(grtl_post("teil6")) && isnum(grtl_post("teil7"))) {
 			if ($bild != "" && file_exists(INFUSIONS."gr_teamlist/images/team/".$bild)) {
 				$bild_save = $bild;
 			} else {

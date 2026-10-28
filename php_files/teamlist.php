@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | PHP-Fusion Content Management System
-| Copyright © 2002 - 2008 Nick Jones
+| Copyright Â© 2002 - 2008 Nick Jones
 | http://www.php-fusion.co.uk/
 +--------------------------------------------------------+
 | Title: Gr_Teamlist v2.2 for PHP-Fusion 7
@@ -22,6 +22,7 @@ require_once "maincore.php";
 require_once THEMES."templates/header.php";
 
 include INFUSIONS."gr_teamlist/infusion_db.php";
+require_once INFUSIONS."gr_teamlist/gr_teamlist_functions.php";
 if (file_exists(INFUSIONS."gr_teamlist/locale/".LOCALESET."index.php")) {
 	include INFUSIONS."gr_teamlist/locale/".LOCALESET."index.php";
 } else {
@@ -49,13 +50,14 @@ while ($tl_group = dbarray($result)) {
 			$align = $counter % $columns ? "left" : "right";
 			echo "<td align='$align' width='50%' class='tbl'>";
 			}
+			$tl_users2 = array();
 			if ($tl_users['tlu_userid'] != 0) {
 				$result3 = dbquery("SELECT * FROM ".DB_USERS." WHERE user_id='".$tl_users['tlu_userid']."'");
-				$tl_users2 = dbarray($result3);
+				$tl_users2 = grtl_fetch($result3);
 			}
 			if ($tl_users['tlu_pic'] != "" && file_exists(INFUSIONS."gr_teamlist/images/team/".$tl_users['tlu_pic'])) {
 				$user_avatar = INFUSIONS."gr_teamlist/images/team/".$tl_users['tlu_pic'];
-			} elseif ($tl_users2['user_avatar'] != "" && file_exists(IMAGES."avatars/".$tl_users2['user_avatar'])) {
+			} elseif (grtl_value($tl_users2, "user_avatar") != "" && file_exists(IMAGES."avatars/".$tl_users2['user_avatar'])) {
 				$user_avatar = IMAGES."avatars/".$tl_users2['user_avatar'];
 			} else {
 				$user_avatar = IMAGES."avatars/nopic.gif";
@@ -69,23 +71,23 @@ while ($tl_group = dbarray($result)) {
 	      	echo "<img border='0' src='".INFUSIONS."gr_teamlist/images/inaktiv.gif' alt='Inaktiv' width='9' height='12' /> ";
 	      }
 	      if ($tl_users['tlu_userid'] != 0) {
-	      	echo "<a href='".BASEDIR."profile.php?lookup=".$tl_users['tlu_userid']."'>".$tl_users2['user_name']."</a> (".$tl_users['tlu_abteil'].")</strong>";
+	      	echo "<a href='".BASEDIR."profile.php?lookup=".$tl_users['tlu_userid']."'>".grtl_value($tl_users2, "user_name")."</a> (".$tl_users['tlu_abteil'].")</strong>";
 	      } else {
 	      	echo $locale['grtl200']." (".$tl_users['tlu_abteil'].")</strong>";
 	      }
 	    echo "</td>
 	    </tr>
 	    <tr>
-	    	<td rowspan='3' width='70' class='tbl2'><img border='0' src='".$user_avatar."' alt='".$tl_users2['user_name']."' width='70' height='70' /></td>
+	    	<td rowspan='3' width='70' class='tbl2'><img border='0' src='".$user_avatar."' alt='".grtl_value($tl_users2, "user_name")."' width='70' height='70' /></td>
 	      <td align='right' class='tbl1' width='30'>".$locale['grtl201']."</td>
 	      <td align='left' class='tbl2' width='150'>".$tl_users['tlu_rname']."</td>
 	    </tr>
 	    <tr>
 	    	<td align='right' class='tbl1'>".$locale['grtl202']."</td>
 	    	<td align='left' class='tbl2'>";
-	      if (array_key_exists("user_birthdate", $tl_users2) && $tl_users2['user_birthdate'] != "0000-00-00" && $tl_users['tlu_userid'] != 0) {
-					$user_birthdate = explode("-", $tl_users2['user_birthdate']);
-					echo TL_ALTER(number_format($user_birthdate['2']),number_format($user_birthdate['1']),$user_birthdate['0']);
+	      $user_birthdate = explode("-", grtl_value($tl_users2, "user_birthdate"));
+	      if (count($user_birthdate) == 3 && (int)$user_birthdate[0] > 0 && $tl_users['tlu_userid'] != 0) {
+					echo grtl_alter($user_birthdate[2], $user_birthdate[1], $user_birthdate[0]);
 				}	else {
 					echo $locale['grtl203'];
 				}
@@ -104,7 +106,7 @@ while ($tl_group = dbarray($result)) {
 	    <tr>
 	    	<td align='right' class='tbl1'>".$locale['grtl205']."</td>
 	    	<td colspan='2' align='left' class='tbl2'>";
-	    	if ($tl_users['tlu_userid'] != 0 && ($tl_users2['user_hide_email'] != "1" || iADMIN)) {
+	    	if ($tl_users['tlu_userid'] != 0 && grtl_value($tl_users2, "user_email") != "" && (grtl_value($tl_users2, "user_hide_email") != "1" || iADMIN)) {
 	    		echo hide_email($tl_users2['user_email'], "<img border='0' src='".INFUSIONS."gr_teamlist/images/email.png' alt='Email ' width='16' height='16' />")." ";
 				}
 				if (array_key_exists("user_aim", $tl_users2) && $tl_users['tlu_userid'] != 0 && $tl_users2['user_aim'] != "") {
@@ -119,7 +121,7 @@ while ($tl_group = dbarray($result)) {
 				if (array_key_exists("user_yahoo", $tl_users2) && $tl_users['tlu_userid'] != 0 && $tl_users2['user_yahoo'] != "") {
 	    		echo "<a href='http://uk.profiles.yahoo.com/".$tl_users2['user_yahoo']."' title='".$tl_users2['user_yahoo']."'><img border='0' src='".INFUSIONS."gr_teamlist/images/yahoo.png' alt='YAHOO ' width='16' height='16' /></a> ";
 				}
-				if (($tl_users['tlu_userid'] == 0 || ($tl_users2['user_hide_email'] == "1" && !iADMIN)) && !IsSeT($tl_users2['user_aim']) && !IsSeT($tl_users2['user_icq']) && !IsSeT($tl_users2['user_msn']) && !IsSeT($tl_users2['user_yahoo'])) {
+				if (($tl_users['tlu_userid'] == 0 || (grtl_value($tl_users2, "user_hide_email") == "1" && !iADMIN)) && !IsSeT($tl_users2['user_aim']) && !IsSeT($tl_users2['user_icq']) && !IsSeT($tl_users2['user_msn']) && !IsSeT($tl_users2['user_yahoo'])) {
 	    		echo $locale['grtl206'];
 				}
 			echo "</td>
@@ -150,13 +152,6 @@ while ($tl_group = dbarray($result)) {
 echo "<div align='right'><a href='http://www.granade.eu/scripte/teamlist.html' target='_blank'>Teamlist &copy;</a></div>";
 closetable();
 
-function TL_ALTER($gebd,$gebm,$geby){
-	$alter = date("Y") - $geby;
-	if (mktime(0,0,0,date("m"),date("d"),date("Y")) < mktime(0,0,0,$gebm,$gebd,date("Y"))) {
-		$alter--;
-	}
-	return $alter;
-}
 echo '<script type="text/javascript">
 function Toggle(id) {
   spanid1 = "ToggleRow_"+id;

@@ -10,6 +10,12 @@ Dieses Repository basiert auf dem Originalscript Gr_Teamlist v2.2 von Ralf Thiem
 
 Dies ist keine offizielle Version des Originalautors. Änderungen gegenüber v2.2 sind im Git-Verlauf nachvollziehbar und in den geänderten Dateien im Header vermerkt.
 
+## Anforderungen
+
+- PHP-Fusion 7
+- PHP 5 bis 8.4
+- MySQL ab 4.1 oder MariaDB
+
 ## Installation
 
 1. Den Inhalt von `php_files/` in das Hauptverzeichnis von PHP-Fusion hochladen.

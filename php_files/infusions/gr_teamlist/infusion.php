@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | PHP-Fusion Content Management System
-| Copyright © 2002 - 2008 Nick Jones
+| Copyright Â© 2002 - 2008 Nick Jones
 | http://www.php-fusion.co.uk/
 +--------------------------------------------------------+
 | Title: Gr_Teamlist v2.2 for PHP-Fusion 7
@@ -43,7 +43,7 @@ tlg_pic						VARCHAR(50) DEFAULT '' NOT NULL,
 tlg_position			SMALLINT(5) DEFAULT '1' NOT NULL,
 tlg_status				TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
 PRIMARY KEY (tlg_id)
-) TYPE=MyISAM;";
+) ENGINE=MyISAM;";
 
 $inf_newtable[2] = DB_GR_TEAMLIST_USERS." (
 tlu_id						SMALLINT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -51,13 +51,13 @@ tlu_userid				SMALLINT(5) DEFAULT '1' NOT NULL,
 tlu_pic						VARCHAR(50) DEFAULT '' NOT NULL,
 tlu_rname					VARCHAR(50) DEFAULT '' NOT NULL,
 tlu_abteil				VARCHAR(50) DEFAULT '' NOT NULL,
-tlu_feld1					TEXT DEFAULT '' NOT NULL,
-tlu_feld2					TEXT DEFAULT '' NOT NULL,
+tlu_feld1					TEXT NOT NULL,
+tlu_feld2					TEXT NOT NULL,
 tlu_status				SMALLINT(5) DEFAULT '0' NOT NULL,
 tlu_groups				SMALLINT(5) DEFAULT '0' NOT NULL,
 tlu_position			SMALLINT(5) DEFAULT '0' NOT NULL,
 PRIMARY KEY (tlu_id)
-) TYPE=MyISAM;";
+) ENGINE=MyISAM;";
 
 $inf_droptable[1] = DB_GR_TEAMLIST_GROUP;
 $inf_droptable[2] = DB_GR_TEAMLIST_USERS;

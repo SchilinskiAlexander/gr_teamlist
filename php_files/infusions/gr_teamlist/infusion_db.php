@@ -1,7 +1,7 @@
 <?php
 /*-------------------------------------------------------+
 | PHP-Fusion Content Management System
-| Copyright © 2002 - 2008 Nick Jones
+| Copyright Â© 2002 - 2008 Nick Jones
 | http://www.php-fusion.co.uk/
 +--------------------------------------------------------+
 | Title: Gr_Teamlist v2.2 for PHP-Fusion 7
