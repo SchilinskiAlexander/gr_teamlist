@@ -51,6 +51,19 @@ if (!function_exists("grtl_value")) {
 	}
 }
 
+// Ersatz fuer hide_email(): Der PHP-Fusion-Kern zerstoert den Link zufaellig,
+// wenn die Adresse ein "x" enthaelt. Hier wird die Adresse als HTML-Entities kodiert.
+if (!function_exists("grtl_mail_link")) {
+	function grtl_mail_link($email, $title) {
+		$mailto = "mailto:".$email;
+		$encoded = "";
+		for ($i = 0; $i < strlen($mailto); $i++) {
+			$encoded .= "&#".ord($mailto[$i]).";";
+		}
+		return "<a href='".$encoded."'>".$title."</a>";
+	}
+}
+
 if (!function_exists("grtl_alter")) {
 	function grtl_alter($gebd, $gebm, $geby) {
 		$gebd = (int)$gebd;

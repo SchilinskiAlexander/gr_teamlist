@@ -107,7 +107,7 @@ while ($tl_group = dbarray($result)) {
 	    	<td align='right' class='tbl1'>".$locale['grtl205']."</td>
 	    	<td colspan='2' align='left' class='tbl2'>";
 	    	if ($tl_users['tlu_userid'] != 0 && grtl_value($tl_users2, "user_email") != "" && (grtl_value($tl_users2, "user_hide_email") != "1" || iADMIN)) {
-	    		echo hide_email($tl_users2['user_email'], "<img border='0' src='".INFUSIONS."gr_teamlist/images/email.png' alt='Email ' width='16' height='16' />")." ";
+	    		echo grtl_mail_link($tl_users2['user_email'], "<img border='0' src='".INFUSIONS."gr_teamlist/images/email.png' alt='Email ' width='16' height='16' />")." ";
 				}
 				if (array_key_exists("user_aim", $tl_users2) && $tl_users['tlu_userid'] != 0 && $tl_users2['user_aim'] != "") {
 	    		echo "<a href='aim:goim?screenname=".$tl_users2['user_aim']."' target='_blank' title='".$tl_users2['user_aim']."'><img border='0' src='".INFUSIONS."gr_teamlist/images/aim.png' alt='AIM ' width='16' height='16' /></a> ";
